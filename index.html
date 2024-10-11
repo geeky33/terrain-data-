@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>3D Terrain with Contours</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY"></script>
+    <style>
+      /* Set the size of the map */
+      #map {
+        height: 100vh;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>3D Terrain, Satellite, and Contours Visualization</h1>
+    <div id="map"></div>
+
+    <script>
+      // Initialize and add the map
+      function initMap() {
+        // The location for center point (adjust as needed)
+        const centerPoint = { lat: 20.333125, lng: 20.333125 };
+
+        // Create the map
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 14, // Zoom level
+          center: centerPoint,
+          mapTypeId: 'terrain', // Terrain view initially
+          tilt: 45 // 3D tilt (for terrain)
+        });
+
+        // Add a marker for your borehole project center
+        const marker = new google.maps.Marker({
+          position: centerPoint,
+          map: map,
+          title: "Center of Borehole Project"
+        });
+
+        // Function to fetch and draw elevation contours
+        const elevator = new google.maps.ElevationService();
+        const latLngs = [
+          new google.maps.LatLng(20.33132778, 20.33132778),
+          new google.maps.LatLng(20.333125, 20.333125),
+          new google.maps.LatLng(20.33667222, 20.33667222)
+        ];
+
+        elevator.getElevationAlongPath(
+          {
+            path: latLngs,
+            samples: 256
+          },
+          plotElevation
+        );
+
+        // Function to draw contour lines using elevation data
+        function plotElevation(elevations, status) {
+          if (status !== "OK") {
+            console.error("Elevation service failed due to: " + status);
+            return;
+          }
+
+          const elevationPath = [];
+          for (let i = 0; i < elevations.length; i++) {
+            elevationPath.push({
+              location: elevations[i].location,
+              elevation: elevations[i].elevation
+            });
+          }
+
+          // Optionally plot contour lines or elevation points here.
+          // You could also visualize the elevation change on a graph using a plotting library.
+        }
+
+        // Add a toggle button for switching map types (Satellite and Terrain)
+        const mapTypeControlDiv = document.createElement('div');
+        mapTypeControlDiv.style.padding = '10px';
+        const mapTypeControl = new google.maps.MapTypeControl({
+          mapTypeIds: ['roadmap', 'satellite', 'terrain'],
+        });
+
+        map.controls[google.maps.ControlPosition.TOP_RIGHT].push(mapTypeControlDiv);
+      }
+
+      window.onload = initMap;
+    </script>
+  </body>
+</html>
